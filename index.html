@@ -44,7 +44,7 @@
           >
             Send
           </button>
-          <div id="typingIndicator" style="display: none"></div>
+          <div id="typingIndicator" class="d-none"></div>
         </form>
       </section>
     </main>
@@ -61,6 +61,7 @@
     crossorigin="anonymous"
   ></script>
 
+  <script src="./socket.io.js"></script>
   <script>
     function secondsToTime(e) {
       const date = Date.now() - e;
@@ -93,7 +94,8 @@
         if (input.value.trim() === "") {
           clearTimeout(typingTimeout);
           socket.emit("SStopTyping");
-          typingIndicator.style.display = "none";
+          typingIndicator.classList.remove("d-block");
+          typingIndicator.classList.add("d-none");
         } else {
           if (!typingTimeout) {
             socket.emit("STyping");
@@ -102,7 +104,8 @@
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
           socket.emit("SStopTyping");
-          typingIndicator.style.display = "none";
+          typingIndicator.classList.remove("d-block");
+          typingIndicator.classList.add("d-none");
         }, 5000);
       }
 
@@ -163,7 +166,8 @@
 
       // Recevoir des indicateurs de frappe d'autres clients
       socket.on("CTyping", function (message) {
-        typingIndicator.style.display = "block";
+        typingIndicator.classList.remove("d-none");
+        typingIndicator.classList.add("d-block");
         typingIndicator.innerText = message;
       });
 
