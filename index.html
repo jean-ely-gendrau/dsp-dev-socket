@@ -97,6 +97,7 @@
 
   <script src="./socket.io.js"></script>
   <script>
+    const idClient = Math.floor(Math.random() * Date.now()).toString(4);
     const listOfChannelByDefault = ["ReactJs", "NextJs", "PHP", "HTML/CSS"];
     function secondsToTime(e) {
       const date = Date.now() - e;
@@ -167,6 +168,7 @@
 
         if (input.value) {
           socket.emit("SMessage", {
+            idClient: idClient,
             message: input.value,
             chatRoom: chatRoomSelect,
             createdAt: new Date(),
