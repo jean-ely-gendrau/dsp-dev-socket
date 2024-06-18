@@ -185,7 +185,8 @@
 
       // Arrêter d'afficher l'indicateur de frappe
       socket.on("CStopTyping", function () {
-        typingIndicator.style.display = "none";
+        typingIndicator.classList.remove("d-block");
+        typingIndicator.classList.add("d-none");
       });
     });
   </script>
