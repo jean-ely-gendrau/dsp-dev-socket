@@ -12,7 +12,11 @@ app.use(express.static(__dirname + '/'));
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
-
+/*
+app.get('/', (req, res) => {
+  res.sendFile(join(__dirname, 'index.html'));
+});
+*/
 io.on('connection', (socket) => {
   console.log(`${socket.id}  s'est connecté`);
 
@@ -29,7 +33,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    console.log(socket.rooms);
     console.log(`${socket.id} s'est déconnecté`);
+  });
+
+  // On écoute les entrées dans les salles
+  socket.on("SJoinRoom", (room) => {
+    // On entre dans la salle demandée
+    socket.join(room);
+    console.log(socket.rooms);
+  });
+
+  // On écoute les sorties dans les salles
+  socket.on("SleaveRoom", (room) => {
+    // On entre dans la salle demandée
+    socket.leave(room);
+    console.log(socket.rooms);
   });
 });
 

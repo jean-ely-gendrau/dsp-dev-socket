@@ -23,6 +23,30 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Dropdown
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li>
+                  <a class="dropdown-item" href="">Géneral</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/channel/ReactJS">ReactJS</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/channel/NodeJS">NodeJS</a>
+                </li>
+              </ul>
+            </li>
+
             <li class="nav-item active">
               <a class="nav-link" href="/">Connexion</a>
             </li>
@@ -31,12 +55,22 @@
       </nav>
     </header>
 
+    <aside class="">
+      <ul id="navtabs" class="nav nav-tabs">
+        <li class="nav-link text-primary active" data-action="panel"># Home</li>
+        <li class="nav-link text-primary" data-room="general"># Général</li>
+        <li class="nav-link text-primary" data-room="reactjs"># ReactJS</li>
+        <li class="nav-link text-primary" data-room="nodejs"># NodeJS</li>
+      </ul>
+    </aside>
+
     <main>
       <section>
         <button type="button" class="btn btn-primary">
           Message reçu
           <span id="countMessage" class="badge badge-light">0</span>
         </button>
+
         <ul id="messages"></ul>
         <form id="form" action="">
           <input title="tchat" id="input" autocomplete="off" /><button
@@ -63,6 +97,7 @@
 
   <script src="./socket.io.js"></script>
   <script>
+    const listOfChannelByDefault = ["ReactJs", "NextJs", "PHP", "HTML/CSS"];
     function secondsToTime(e) {
       const date = Date.now() - e;
       const h = Math.floor(date / 3600)
@@ -132,6 +167,44 @@
           clearTimeout(typingTimeout);
           socket.emit("SStopTyping");
         }
+      });
+
+      // Connecter l'arrivant au chat general
+      socket.on("connect", () => {
+        // On émet un message d'entrée dans une salle
+        socket.emit("SJoinRoom", "general");
+      });
+
+      // Sélection de tous les onglets tabs et parcours des élément
+      // Sur chaque élément on écoute l'événement click
+      document.querySelectorAll("#navtabs li").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          // On vérifie si la class active n'est pas présente et que dataset.action n'existe pas
+          if (!this.classList.contains("active") && !this.dataset.action) {
+            // Sélection du précedant élément actif
+            const actif = document.querySelector("#navtabs li.active");
+            // Suppréssion de la class activ sur le précédant élément
+            actif?.classList.remove("active");
+            // On passe actif l'élément sélectionné
+            this?.classList.add("active");
+            // On sélectionne et vide l'élément message
+            document.querySelector("#messages").innerHTML = "";
+            // On quitte le thcat en cours (dataset)
+            socket.emit("SLeaveRoom", actif.dataset.room);
+            // On join le chat selectionné (dataset)
+            socket.emit("SJoinRoom", this.dataset.room);
+          }
+          // Si on sélection onglet home
+          else if (this.dataset.action === "panel") {
+            // Sélection du précedant élément actif
+            const actif = document.querySelector("#navtabs li.active");
+            // Suppréssion de la class activ sur le précédant élément
+            actif?.classList.remove("active");
+            // On passe actif l'élément sélectionné
+            this?.classList.add("active");
+            console.log(tab);
+          }
+        });
       });
 
       // Recevoir des messages des autres clients

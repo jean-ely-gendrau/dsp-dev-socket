@@ -53,3 +53,24 @@ body {
 #messages > li:nth-child(odd) {
   background: #efefef;
 }
+
+#tabs {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#tabs li {
+  padding: 10px;
+  color: white;
+  text-transform: lowercase;
+}
+
+#tabs li.active {
+  background-color: #393c43;
+  font-weight: bold;
+}
+
+#tabs li:not(.active) {
+  cursor: pointer;
+}
