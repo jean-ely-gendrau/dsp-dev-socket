@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
       let messageRoom = historyMessageRoom.map((value => value)).filter(historyMessage => historyMessage.room === room);
       // console.log(messageRoom);
       // Réstitution des messages celon la salle de chat active par le client
-      socket.emit("CHistoryMessage", { messages: JSON.stringify(messageRoom) });
+      socket.emit("CHistoryMessage", { history: JSON.stringify(messageRoom) });
     }
     // Joindre la salle de chat
     socket.join(room);

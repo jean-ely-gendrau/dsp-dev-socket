@@ -177,6 +177,15 @@
         }
       });
 
+      // Gérer la réception d'historiques des messages
+      socket.on("CHistoryMessage", (data) => {
+        let history = JSON.parse(data.history);
+        if (history.length > 0) {
+          history.forEach((history) => messagePush(history));
+        }
+        console.log(data);
+      });
+
       // Connecter l'arrivant au chat general
       socket.on("connect", () => {
         // On émet un message d'entrée dans une salle
@@ -217,10 +226,28 @@
 
       // Recevoir des messages des autres clients
       socket.on("CMessage", (data) => {
+        messagePush(data);
+      });
+
+      // Recevoir des indicateurs de frappe d'autres clients
+      socket.on("CTyping", function (message) {
+        typingIndicator.classList.remove("d-none");
+        typingIndicator.classList.add("d-block");
+        typingIndicator.innerText = message;
+      });
+
+      // Arrêter d'afficher l'indicateur de frappe
+      socket.on("CStopTyping", function () {
+        typingIndicator.classList.remove("d-block");
+        typingIndicator.classList.add("d-none");
+      });
+
+      // fonctionnalité d'envoie de message
+      function messagePush(data) {
         const bubbleDate = new Date().toLocaleTimeString("fr-FR");
         const item = document.createElement("li");
 
-        console.log(data);
+        //  console.log(data);
 
         if (data.id === socket.id) {
           console.log(data.id);
@@ -242,33 +269,20 @@
         const bubbleChat = `<div class="d-flex align-items-center ${
           data.id !== socket.id ? "flex-row" : "flex-row-reverse"
         }">
-          <div class="img_cont">
-          <img src="https://placehold.co/100x100" class="rounded-circle user_img">
-          <span class="online_icon offline"></span>
-        </div>
-        <div class="user_info p-2">
-          <span>${data.msg}</span>
-          <p>${socket.id} >${Date.now()}</p>
-        </div>
-      </div>`;
+        <div class="img_cont">
+        <img src="https://placehold.co/100x100" class="rounded-circle user_img">
+        <span class="online_icon offline"></span>
+      </div>
+      <div class="user_info p-2">
+        <span>${data.msg}</span>
+        <p>${socket.id} >${Date.now()}</p>
+      </div>
+    </div>`;
 
         item.innerHTML = bubbleChat;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      // Recevoir des indicateurs de frappe d'autres clients
-      socket.on("CTyping", function (message) {
-        typingIndicator.classList.remove("d-none");
-        typingIndicator.classList.add("d-block");
-        typingIndicator.innerText = message;
-      });
-
-      // Arrêter d'afficher l'indicateur de frappe
-      socket.on("CStopTyping", function () {
-        typingIndicator.classList.remove("d-block");
-        typingIndicator.classList.add("d-none");
-      });
+      }
     });
   </script>
 </html>
