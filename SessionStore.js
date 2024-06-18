@@ -1,11 +1,10 @@
-class SessionStorage extends SessionStorage {
+class SessionStore {
   constructor() {
-    super();
     this.session = new Map();
   }
 
   findSession(id) {
-    return this.session.id;
+    return this.session.get(id);
   }
 
   saveSession(id, session) {
@@ -16,3 +15,5 @@ class SessionStorage extends SessionStorage {
     return [...this.session.values()];
   }
 }
+
+module.exports = SessionStore

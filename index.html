@@ -97,7 +97,6 @@
 
   <script src="./socket.io.js"></script>
   <script>
-    const idClient = Math.floor(Math.random() * Date.now()).toString(4);
     const listOfChannelByDefault = ["ReactJs", "NextJs", "PHP", "HTML/CSS"];
     function secondsToTime(e) {
       const date = Date.now() - e;
@@ -128,6 +127,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       const socket = io();
+      const sessionID = localStorage.getItem("sessionID");
+
+      if (sessionID) {
+        this.usernameAlreadySelected = true;
+        socket.auth = { sessionID };
+        socket.connect();
+      }
+
       const form = document.getElementById("form");
       const input = document.getElementById("input");
       const messages = document.getElementById("messages");
@@ -168,7 +175,6 @@
 
         if (input.value) {
           socket.emit("SMessage", {
-            idClient: idClient,
             message: input.value,
             chatRoom: chatRoomSelect,
             createdAt: new Date(),
@@ -192,6 +198,16 @@
       socket.on("connect", () => {
         // On émet un message d'entrée dans une salle
         socket.emit("SJoinRoom", "general");
+      });
+
+      // Reception de session
+      socket.on("session", ({ sessionID, userID }) => {
+        // On attache sessionID pour la prochaine re-connexion
+        socket.auth = { sessionID };
+        // save id session
+        localStorage.setItem("sessionID", sessionID);
+
+        socket.userID = userID;
       });
 
       // Sélection de tous les onglets tabs et parcours des élément
@@ -251,8 +267,7 @@
 
         //  console.log(data);
 
-        if (data.id === socket.id) {
-          console.log(data.id);
+        if (data.id === socket.userID) {
           bubbleColor = "text-warning";
           bubbleInfos = "text-secondary";
           item.classList.add("d-flex", "justify-content-end");
@@ -269,7 +284,7 @@
         }
 
         const bubbleChat = `<div class="d-flex align-items-center ${
-          data.id !== socket.id ? "flex-row" : "flex-row-reverse"
+          data.id !== socket.userID ? "flex-row" : "flex-row-reverse"
         }">
         <div class="img_cont">
         <img src="https://placehold.co/100x100" class="rounded-circle user_img">
