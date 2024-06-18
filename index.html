@@ -79,6 +79,17 @@
       return `${h}:${m}:${s}`;
     }
 
+    let notification = `<div class="toast-container position-absolute top-0 end-0 p-3">
+                          <div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                              <div class="toast-body">
+                              %MESSAGE%
+                            </div>
+                              <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                          </div>
+                        </div>`;
+
     document.addEventListener("DOMContentLoaded", function () {
       const socket = io();
       const form = document.getElementById("form");
@@ -140,6 +151,7 @@
           if (countMessage) {
             countMessage.innerHTML = parseInt(countMessage.textContent) + 1;
           }
+
           bubbleColor = "text-primary";
           bubbleInfos = "text-secondary";
           item.classList.add("d-flex", "justify-content-start");
@@ -147,7 +159,7 @@
         }
 
         const bubbleChat = `<div class="d-flex align-items-center ${
-          data.id === socket.id ? "flex-row" : "flex-row-reverse"
+          data.id !== socket.id ? "flex-row" : "flex-row-reverse"
         }">
           <div class="img_cont">
           <img src="https://placehold.co/100x100" class="rounded-circle user_img">
