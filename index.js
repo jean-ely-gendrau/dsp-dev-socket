@@ -7,6 +7,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
+let historyMessageRoom = [];
+
 app.use(express.static(__dirname + '/'));
 
 app.get('/', (req, res) => {
@@ -28,20 +30,34 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('CStopTyping');
   });
 
-  socket.on('SMessage', (message) => {
-    io.emit('CMessage', { msg: message, id: socket.id });
+  socket.on('SMessage', (data) => {
+    // console.log('data', data);
+    historyMessageRoom = [...historyMessageRoom, { id: socket.id, msg: data.message, room: data.chatRoom, createdAt: data.createdAt }];
+    io.emit('CMessage', { msg: data.message, id: socket.id });
   });
 
   socket.on('disconnect', () => {
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
     console.log(`${socket.id} s'est déconnecté`);
   });
 
   // On écoute les entrées dans les salles
   socket.on("SJoinRoom", (room) => {
     // On entre dans la salle demandée
+    //console.log('room', room);
+
+    // Réstitution des message stocker dans le tableau d'objet messages
+    //console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
+    if (historyMessageRoom.length > 0) {
+
+      let messageRoom = historyMessageRoom.map((value => value)).filter(historyMessage => historyMessage.room === room);
+      // console.log(messageRoom);
+      // Réstitution des messages celon la salle de chat active par le client
+      socket.emit("CHistoryMessage", { messages: JSON.stringify(messageRoom) });
+    }
+    // Joindre la salle de chat
     socket.join(room);
-    console.log(socket.rooms);
+    //console.log(socket.rooms);
   });
 
   // On écoute les sorties dans les salles
