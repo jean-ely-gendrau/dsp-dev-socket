@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DSP-Dev-Socket</title>
-    <link rel="stylesheet" href="./tchat.css" />
+    <link id="cssTchat" rel="stylesheet" href="/tchat.css" />
   </head>
   <body>
     <header>
@@ -57,10 +57,18 @@
 
     <aside class="">
       <ul id="navtabs" class="nav nav-tabs">
-        <li class="nav-link text-primary active" data-action="panel"># Home</li>
-        <li class="nav-link text-primary" data-room="general"># Général</li>
-        <li class="nav-link text-primary" data-room="reactjs"># ReactJS</li>
-        <li class="nav-link text-primary" data-room="nodejs"># NodeJS</li>
+        <li class="nav-link text-primary active" data-action="panel">
+          <a class="nav-link" href="/channel/home"># Home</a>
+        </li>
+        <li class="nav-item text-primary" data-room="general">
+          <a class="nav-link" href="/channel/général"># Général</a>
+        </li>
+        <li class="nav-link text-primary" data-room="reactjs">
+          <a class="nav-link" href="/channel/react-js"># ReactJS</a>
+        </li>
+        <li class="nav-link text-primary" data-room="nodejs">
+          <a class="nav-link" href="/channel/node-js"># NodeJS</a>
+        </li>
       </ul>
     </aside>
 
@@ -95,9 +103,8 @@
     crossorigin="anonymous"
   ></script>
 
-  <script src="./socket.io.js"></script>
+  <script src="/socket.io.js"></script>
   <script>
-    const listOfChannelByDefault = ["ReactJs", "NextJs", "PHP", "HTML/CSS"];
     function secondsToTime(e) {
       const date = Date.now() - e;
       const h = Math.floor(date / 3600)
@@ -185,6 +192,11 @@
         }
       });
 
+      // Gérer la notification de déconnexion
+      socket.on("CUserDisconnected", (data) => {
+        messagePush({}, true);
+      });
+
       // Gérer la réception d'historiques des messages
       socket.on("CHistoryMessage", (data) => {
         let history = JSON.parse(data.history);
@@ -261,7 +273,7 @@
       });
 
       // fonctionnalité d'envoie de message
-      function messagePush(data) {
+      function messagePush(data, disconnect = false) {
         const bubbleDate = new Date().toLocaleTimeString("fr-FR");
         const item = document.createElement("li");
 
@@ -283,9 +295,13 @@
           // item.innerHTML +='<span class="badge rounded-pill bg-danger rounded-circle float-start">&nbsp;</span>';
         }
 
-        const bubbleChat = `<div class="d-flex align-items-center ${
-          data.id !== socket.userID ? "flex-row" : "flex-row-reverse"
-        }">
+        const bubbleChat = disconnect
+          ? `<div class="d-flex align-items-center ${
+              data.id !== socket.userID ? "flex-row" : "flex-row-reverse"
+            }">utilisateur déconnecter</div>`
+          : `<div class="d-flex align-items-center ${
+              data.id !== socket.userID ? "flex-row" : "flex-row-reverse"
+            }">
         <div class="img_cont">
         <img src="https://placehold.co/100x100" class="rounded-circle user_img">
         <span class="online_icon offline"></span>

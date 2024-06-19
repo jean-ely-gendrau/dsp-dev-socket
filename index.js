@@ -1,6 +1,7 @@
 const express = require('express');
 const { createServer } = require('node:http');
 const { join } = require('node:path');
+const path = require('node:path');
 const { Server } = require('socket.io');
 
 const SessionStorage = require('./SessionStore');
@@ -11,16 +12,16 @@ const io = new Server(server, {});
 
 let historyMessageRoom = [];
 
-app.use(express.static(__dirname + '/'));
+app.use(express.static('public_html'));
 
 app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, './public_html', 'index.html'));
 });
-/*
-app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
+
+app.get('/channel/:channel', (req, res) => {
+  //console.log(req.params.channel);
+  res.sendFile(path.join(__dirname, './public_html', 'index.html'));
 });
-*/
 
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
@@ -53,7 +54,7 @@ io.use((socket, next) => {
 })
 
 io.on('connection', (socket) => {
-  console.log(`${socket.userID}  s'est connecté`);
+  console.log(`${socket.userID ?? socket.id}  s'est connecté`);
 
   // Détails session users
   socket.emit('session', {
@@ -91,7 +92,7 @@ io.on('connection', (socket) => {
         connected: false,
       });
     }
-    console.log(`${socket.userID} s'est déconnecté`);
+    console.log(`${socket.userID ?? socket.id} s'est déconnecté`);
   });
 
   // On écoute les entrées dans les salles
