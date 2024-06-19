@@ -5,17 +5,25 @@ const path = require('node:path');
 const { Server } = require('socket.io');
 
 const SessionStorage = require('./SessionStore');
-const sessionStorage = new SessionStorage();
+const sessionStorage = new SessionStorage();//Stockage Session
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {});
 
 let historyMessageRoom = [];
 
+/****************************
+ * ROUTEUR API
+ */
+app.set('view engine', 'pug');
 app.use(express.static('public_html'));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './public_html', 'index.html'));
+});
+
+app.get('/test', (req, res) => {
+  res.render('test', { youAreUsingPug: true, pageTitle: "ma page tyest" });
 });
 
 app.get('/channel/:channel', (req, res) => {
@@ -23,6 +31,9 @@ app.get('/channel/:channel', (req, res) => {
   res.sendFile(path.join(__dirname, './public_html', 'index.html'));
 });
 
+/***************************
+ * MIDDLEWARE IO SESSION
+ */
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   //DEBUG console.log('sessionID', sessionID, sessionStorage.findAllSession());
@@ -53,6 +64,9 @@ io.use((socket, next) => {
   next();
 })
 
+/**********************
+ * IO CONNECTION
+ */
 io.on('connection', (socket) => {
   console.log(`${socket.userID ?? socket.id}  s'est connecté`);
 
@@ -122,7 +136,9 @@ io.on('connection', (socket) => {
   });
 });
 
-
+/*****************
+ * SERVER LISTEN
+ */
 server.listen(8000, () => {
   console.log('server running at http://localhost:8000');
 });
