@@ -57,16 +57,16 @@
 
     <aside class="">
       <ul id="navtabs" class="nav nav-tabs">
-        <li class="nav-link text-primary active" data-action="panel">
-          <a class="nav-link" href="/channel/home"># Home</a>
+        <li class="nav-item text-primary active" data-action="panel">
+          <a class="nav-link" href="/"># Home</a>
         </li>
         <li class="nav-item text-primary" data-room="general">
           <a class="nav-link" href="/channel/général"># Général</a>
         </li>
-        <li class="nav-link text-primary" data-room="reactjs">
+        <li class="nav-item text-primary" data-room="reactjs">
           <a class="nav-link" href="/channel/react-js"># ReactJS</a>
         </li>
-        <li class="nav-link text-primary" data-room="nodejs">
+        <li class="nav-item text-primary" data-room="nodejs">
           <a class="nav-link" href="/channel/node-js"># NodeJS</a>
         </li>
       </ul>
@@ -74,17 +74,13 @@
 
     <main>
       <section>
-        <button type="button" class="btn btn-primary">
-          Message reçu
-          <span id="countMessage" class="badge badge-light">0</span>
-        </button>
-
         <ul id="messages"></ul>
-        <form id="form" action="">
+        <form class="bg-success" id="form" action="">
           <input title="tchat" id="input" autocomplete="off" /><button
+            class="bg-transparent border border-white rounded-pill text-capitalize"
             type="button"
           >
-            Send
+            envoyer
           </button>
           <div id="typingIndicator" class="d-none"></div>
         </form>
@@ -146,7 +142,6 @@
       const input = document.getElementById("input");
       const messages = document.getElementById("messages");
       const typingIndicator = document.getElementById("typingIndicator");
-      const countMessage = document.getElementById("countMessage");
 
       let typingTimeout;
 
@@ -285,10 +280,6 @@
           item.classList.add("d-flex", "justify-content-end");
           // item.innerHTML +='<span class="badge rounded-pill bg-success rounded-circle float-start">&nbsp;</span>';
         } else {
-          if (countMessage) {
-            countMessage.innerHTML = parseInt(countMessage.textContent) + 1;
-          }
-
           bubbleColor = "text-primary";
           bubbleInfos = "text-secondary";
           item.classList.add("d-flex", "justify-content-start");
