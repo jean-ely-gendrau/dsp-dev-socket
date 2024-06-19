@@ -35,7 +35,12 @@ app.get('/test', (req, res) => {
 });
 */
 app.get('/', (req, res) => {
+  console.log(req, res);
   res.render('index', { titlePage: "TchatGo", home: true, chatRoomList: chatRoomList });
+});
+
+app.post('/authentication', (req, res) => {
+  console.log(req.params);
 });
 
 app.get('/channel/:channel', (req, res) => {
@@ -61,8 +66,7 @@ io.use((socket, next) => {
     }
   }
 
-  const usename = 'default';
-  //socket.handshake.auth.username;
+  const usename = socket.handshake.auth.username;
 
   if (!usename) {
     return next(new Error("invalide username"));
@@ -81,6 +85,7 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   console.log(`${socket.userID ?? socket.id}  s'est connecté`);
 
+  // Sauvgarde de l'utilisateur
   idAvatarRandom = Math.ceil(Math.random() * (9 - 1) + 1);
   userStorage.saveUser(socket.sessionID,
     {
@@ -88,6 +93,7 @@ io.on('connection', (socket) => {
       avatarID: idAvatarRandom,
     }
   );
+
   // Détails session users
   socket.emit('CSession', {
     sessionID: socket.sessionID,
@@ -130,6 +136,7 @@ io.on('connection', (socket) => {
   // On écoute les entrées dans les salles
   socket.on("SJoinRoom", (room) => {
 
+    // On update l'utilisateur losqu'il entre dans le sallon
     userStorage.updateUser(socket.sessionID,
       {
         room: room,
@@ -137,17 +144,22 @@ io.on('connection', (socket) => {
     );
     const rooms = io.of(`/`).adapter.rooms;
     const sids = io.of("/").adapter.sids;
-    console.log(rooms, sids, userStorage.findAllUser());
+    //DEBUG console.log(rooms, sids, userStorage.findAllUser());
+    // On va récuperer tous les utilisateurs
     const historyUsersRoom = userStorage.findAllUser();
+    // On trie les utilisateurs celon la salle de chat active sur le client
     let usersRoom = historyUsersRoom.map((user => user)).filter(userRoom => userRoom.room === room);
+    // On emet le signal CAddUser avec les données users au format serialisé.
     socket.emit("CAddUser", { users: JSON.stringify(usersRoom) });
+
+
     // Réstitution des message stocker dans le tableau d'objet messages
-    console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
+    //DEBUG console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
     if (historyMessageRoom.length > 0) {
 
       let messageRoom = historyMessageRoom.map((value => value)).filter(historyMessage => historyMessage.room === room);
-      console.log('messageRoom', messageRoom);
-      // Réstitution des messages celon la salle de chat active par le client
+      //DEBUGconsole.log('messageRoom', messageRoom);
+      // On emet le signal CHistoryMessage, envoie les messages celon la salle de chat active sur le client
       socket.emit("CHistoryMessage", { history: JSON.stringify(messageRoom) });
     }
     // Joindre la salle de chat

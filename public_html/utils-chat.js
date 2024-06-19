@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
     this.usernameAlreadySelected = true;
     socket.auth = { sessionID };
     socket.connect();
+  } else {
+    $('#ModalConnect').modal('show')
   }
 
   const form = document.getElementById("form");
