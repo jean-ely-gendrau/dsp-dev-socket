@@ -4,31 +4,42 @@ const { join } = require('node:path');
 const path = require('node:path');
 const { Server } = require('socket.io');
 
-const SessionStorage = require('./SessionStore');
+const UserStorage = require('./storage/UserStore');
+const SessionStorage = require('./storage/SessionStore');
+
 const sessionStorage = new SessionStorage();//Stockage Session
+const userStorage = new UserStorage();//Stockage User
+
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {});
 
 let historyMessageRoom = [];
-
+let chatRoomList = [
+  'Discution',
+  'NodeJS',
+  'ReactJS',
+]
 /****************************
  * ROUTEUR API
  */
 app.set('view engine', 'pug');
 app.use(express.static('public_html'));
-
+/*
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './public_html', 'index.html'));
 });
 
 app.get('/test', (req, res) => {
-  res.render('test', { youAreUsingPug: true, pageTitle: "ma page tyest" });
+  res.render('test', { youAreUsingPug: true, pageTitle: "ma page tyest", fooz: true });
+});
+*/
+app.get('/', (req, res) => {
+  res.render('index', { titlePage: "TchatGo", home: true, chatRoomList: chatRoomList });
 });
 
 app.get('/channel/:channel', (req, res) => {
-  //console.log(req.params.channel);
-  res.sendFile(path.join(__dirname, './public_html', 'index.html'));
+  res.render('index', { titlePage: `TchatGo ${req.params.channel}`, activeChannel: req.params.channel.replace('-', ''), chatRoomList: chatRoomList });
 });
 
 /***************************
@@ -36,15 +47,15 @@ app.get('/channel/:channel', (req, res) => {
  */
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
-  //DEBUG console.log('sessionID', sessionID, sessionStorage.findAllSession());
+  console.log('sessionID', sessionID, sessionStorage.findAllSession());
   if (sessionID) {
     // Cherche si une session est dans le sessionStorage
     const session = sessionStorage.findSession(sessionID);
-    //DEBUG console.log('session', session);
+    console.log('session', session);
     if (session) {
       // Définition des ids de session
       socket.sessionID = sessionID;
-      socket.userId = session.userID;
+      socket.userID = session.userID;
       socket.username = session.username;
       return next();
     }
@@ -70,8 +81,15 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   console.log(`${socket.userID ?? socket.id}  s'est connecté`);
 
+  idAvatarRandom = Math.ceil(Math.random() * (9 - 1) + 1);
+  userStorage.saveUser(socket.sessionID,
+    {
+      id: socket.userID,
+      avatarID: idAvatarRandom,
+    }
+  );
   // Détails session users
-  socket.emit('session', {
+  socket.emit('CSession', {
     sessionID: socket.sessionID,
     userID: socket.userID,
   });
@@ -85,8 +103,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('SMessage', (data) => {
-    console.log('data', data);
-    historyMessageRoom = [...historyMessageRoom, { id: socket.userID, msg: data.message, room: data.chatRoom, createdAt: data.createdAt }];
+    //DEBUG console.log('data', data);
+    historyMessageRoom = [...historyMessageRoom, { id: data.id, msg: data.message, room: data.chatRoom, createdAt: data.createdAt }];
     io.emit('CMessage', { msg: data.message, id: socket.userID });
   });
 
@@ -111,15 +129,17 @@ io.on('connection', (socket) => {
 
   // On écoute les entrées dans les salles
   socket.on("SJoinRoom", (room) => {
-    // On entre dans la salle demandée
-    //console.log('room', room);
 
+    const rooms = io.of(`/`).adapter.rooms;
+    const sids = io.of("/").adapter.sids;
+    console.log(rooms, sids, userStorage.findAllUser());
+    socket.emit("CAddUser", { users: JSON.stringify(userStorage.findAllUser()) });
     // Réstitution des message stocker dans le tableau d'objet messages
-    //console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
+    console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
     if (historyMessageRoom.length > 0) {
 
       let messageRoom = historyMessageRoom.map((value => value)).filter(historyMessage => historyMessage.room === room);
-      console.log(messageRoom);
+      console.log('messageRoom', messageRoom);
       // Réstitution des messages celon la salle de chat active par le client
       socket.emit("CHistoryMessage", { history: JSON.stringify(messageRoom) });
     }

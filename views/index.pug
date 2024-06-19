@@ -1,0 +1,49 @@
+include head.pug
+  
+header
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light
+    a.navbar-brand(href="#") Tchat-Socket
+    button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse#navbarNav
+      ul.navbar-nav
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle#navbarDropdown(href="#", role="button", data-bs-toggle="dropdown", aria-expanded="false").
+            
+            Dropdown
+            
+          ul.dropdown-menu(aria-labelledby="navbarDropdown")
+            li
+              a.dropdown-item(href) Géneral
+            li
+              a.dropdown-item(href="/channel/ReactJS") ReactJS
+            li
+              a.dropdown-item(href="/channel/NodeJS") NodeJS
+        li.nav-item.active
+          a.nav-link(href="/") Connexion
+aside
+mixin active(name)
+  if name.toLowerCase() == activeChannel
+    li.nav-item.text-primary.active(data-room=`${name.toLowerCase()}`)
+          a.nav-link(href=`/channel/${name.toLowerCase()}`) # #{name.toLowerCase()}
+  else 
+      li.nav-item.text-primary(data-room=`${name.toLowerCase()}`)
+          a.nav-link(href=`/channel/${name.toLowerCase()}`) # #{name.toLowerCase()}
+
+ul#navtabs.nav.nav-tabs
+  li.nav-item.text-primary(data-action="panel")
+        a.nav-link(href="/") # Home
+  if chatRoomList 
+    each val in chatRoomList
+      +active(val)
+
+main
+  section
+  if home
+    div HOME
+  else 
+       include chat.pug
+
+include scriptAdd.pug
+
+include footer.pug
