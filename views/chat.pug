@@ -1,0 +1,36 @@
+.container
+  //  Content wrapper start 
+  .content-wrapper
+    //  Row start 
+    .row.gutters
+      .col-xl-12.col-lg-12.col-md-12.col-sm-12.col-12
+        .card.m-0
+          //  Row start 
+          .row.no-gutters
+            .col-xl-4.col-lg-4.col-md-4.col-sm-3.col-3
+              .users-container
+                .chat-search-box
+                  .input-group
+                    input.form-control(placeholder="Search")
+                    .input-group-btn
+                      button.btn.btn-info(title="recherche utilisateur", type="button")
+                        i.fa.fa-search
+                ul#usersList.users
+            .col-xl-8.col-lg-8.col-md-8.col-sm-9.col-9
+              .selected-user
+                span
+                  | Salle : 
+                  span.name=titlePage
+              .chat-container
+                ul#messages.chat-box.chatContainerScroll.list-group
+                .form-group.mt-3.mb-0
+                  form#form(action)
+                    input#input(title="tchat", autocomplete="off")
+                    button.bg-transparent.border.border-white.rounded-pill.text-capitalize(type="button").
+                      
+                      envoyer
+                      
+                    #typingIndicator.d-none
+          //  Row end 
+    //  Row end 
+  //  Content wrapper end 

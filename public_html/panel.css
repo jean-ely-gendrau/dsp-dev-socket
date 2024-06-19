@@ -30,7 +30,7 @@ body {
   outline: none;
 }
 
-#form > button {
+#form>button {
   background: #333;
   border: none;
   padding: 0 1rem;
@@ -46,10 +46,31 @@ body {
   padding: 0;
 }
 
-#messages > li {
+#messages>li {
   padding: 0.5rem 1rem;
 }
 
-#messages > li:nth-child(odd) {
+#messages>li:nth-child(odd) {
   background: #efefef;
+}
+
+#tabs {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#tabs li {
+  padding: 10px;
+  color: white;
+  text-transform: lowercase;
+}
+
+#tabs li.active {
+  background-color: #393c43;
+  font-weight: bold;
+}
+
+#tabs li:not(.active) {
+  cursor: pointer;
 }
