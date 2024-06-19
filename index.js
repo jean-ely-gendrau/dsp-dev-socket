@@ -130,10 +130,17 @@ io.on('connection', (socket) => {
   // On écoute les entrées dans les salles
   socket.on("SJoinRoom", (room) => {
 
+    userStorage.updateUser(socket.sessionID,
+      {
+        room: room,
+      }
+    );
     const rooms = io.of(`/`).adapter.rooms;
     const sids = io.of("/").adapter.sids;
     console.log(rooms, sids, userStorage.findAllUser());
-    socket.emit("CAddUser", { users: JSON.stringify(userStorage.findAllUser()) });
+    const historyUsersRoom = userStorage.findAllUser();
+    let usersRoom = historyUsersRoom.map((user => user)).filter(userRoom => userRoom.room === room);
+    socket.emit("CAddUser", { users: JSON.stringify(usersRoom) });
     // Réstitution des message stocker dans le tableau d'objet messages
     console.log('historyMessageRoom.length', historyMessageRoom.length, historyMessageRoom)
     if (historyMessageRoom.length > 0) {
