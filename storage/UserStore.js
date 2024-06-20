@@ -12,10 +12,11 @@ class UserStore {
   }
 
   updateUser(id, user) {
-    const userSelect = this.findUser(id);
+    const userSelect = this.user.get(id);
+    console.log('userSelectfindUser', userSelect)
     if (userSelect) {
       let userUpdate = { ...user, ...userSelect }
-      this.saveUser(id, userUpdate);
+      this.user.set(id, userUpdate);
     }
   }
 
